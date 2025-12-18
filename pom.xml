@@ -65,19 +65,20 @@
     <version>2.8.13</version>
 </dependency>
 
-    <!-- Spring Data JPA -->
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-data-jpa</artifactId>
-    </dependency>
-
+   
     <!-- Spring Web -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
-    <!-- Spring Security (needed for AuthenticationManager, filters, etc.) -->
+    <!-- Spring Data JPA -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <!-- Spring Security -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-security</artifactId>
@@ -90,7 +91,7 @@
         <scope>runtime</scope>
     </dependency>
 
-    <!-- JWT (jjwt) for JwtUtil -->
+    <!-- JWT (jjwt) -->
     <dependency>
         <groupId>io.jsonwebtoken</groupId>
         <artifactId>jjwt-api</artifactId>
@@ -109,14 +110,14 @@
         <scope>runtime</scope>
     </dependency>
 
-    <!-- Swagger / OpenAPI (pick ONE version; 2.8.13 is fine) -->
+    <!-- Swagger / OpenAPI -->
     <dependency>
         <groupId>org.springdoc</groupId>
         <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         <version>2.8.13</version>
     </dependency>
 
-    <!-- Testing -->
+    <!-- Tests -->
     <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-test</artifactId>
@@ -128,6 +129,8 @@
         <version>7.8.0</version>
         <scope>test</scope>
     </dependency>
+
+
 
     </dependencies>
 	
