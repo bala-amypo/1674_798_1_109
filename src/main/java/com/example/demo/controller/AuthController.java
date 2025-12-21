@@ -4,13 +4,10 @@ import com.example.demo.dto.JwtResponse;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
 import com.example.demo.service.AuthService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "Auth")
 public class AuthController {
 
     private final AuthService authService;
@@ -20,12 +17,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<JwtResponse> register(@RequestBody RegisterRequest req) {
-        return ResponseEntity.ok(authService.register(req));
+    public JwtResponse register(@RequestBody RegisterRequest request) {
+        return authService.register(request);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest req) {
-        return ResponseEntity.ok(authService.login(req));
+    public JwtResponse login(@RequestBody LoginRequest request) {
+        return authService.login(request);
     }
 }

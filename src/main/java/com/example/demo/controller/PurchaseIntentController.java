@@ -2,39 +2,37 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.PurchaseIntentRecord;
 import com.example.demo.service.PurchaseIntentService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/intents")
-@Tag(name = "Intents")
 public class PurchaseIntentController {
 
-    private final PurchaseIntentService service;
+    private final PurchaseIntentService purchaseIntentService;
 
-    public PurchaseIntentController(PurchaseIntentService service) {
-        this.service = service;
+    public PurchaseIntentController(PurchaseIntentService purchaseIntentService) {
+        this.purchaseIntentService = purchaseIntentService;
     }
 
     @PostMapping
-    public ResponseEntity<PurchaseIntentRecord> create(@RequestBody PurchaseIntentRecord intent) {
-        return ResponseEntity.ok(service.createIntent(intent));
+    public PurchaseIntentRecord createIntent(@RequestBody PurchaseIntentRecord intent) {
+        return purchaseIntentService.createIntent(intent);
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<PurchaseIntentRecord>> byUser(@PathVariable Long userId) {
-        return ResponseEntity.ok(service.getIntentsByUser(userId));
+    public List<PurchaseIntentRecord> getByUser(@PathVariable Long userId) {
+        return purchaseIntentService.getIntentsByUser(userId);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PurchaseIntentRecord> get(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getIntentById(id));
+    public PurchaseIntentRecord getById(@PathVariable Long id) {
+        return purchaseIntentService.getIntentById(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<PurchaseIntentRecord>> all() {
-        return ResponseEntity.ok(service.getAllIntents());
+    public List<PurchaseIntentRecord> getAll() {
+        return purchaseIntentService.getAllIntents();
     }
 }

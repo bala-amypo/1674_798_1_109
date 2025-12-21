@@ -2,45 +2,43 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.RewardRule;
 import com.example.demo.service.RewardRuleService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/reward-rules")
-@Tag(name = "Reward Rules")
 public class RewardRuleController {
 
-    private final RewardRuleService service;
+    private final RewardRuleService rewardRuleService;
 
-    public RewardRuleController(RewardRuleService service) {
-        this.service = service;
+    public RewardRuleController(RewardRuleService rewardRuleService) {
+        this.rewardRuleService = rewardRuleService;
     }
 
     @PostMapping
-    public ResponseEntity<RewardRule> create(@RequestBody RewardRule rule) {
-        return ResponseEntity.ok(service.createRule(rule));
+    public RewardRule createRule(@RequestBody RewardRule rule) {
+        return rewardRuleService.createRule(rule);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RewardRule> update(@PathVariable Long id,
-                                             @RequestBody RewardRule rule) {
-        return ResponseEntity.ok(service.updateRule(id, rule));
+    public RewardRule updateRule(@PathVariable Long id,
+                                 @RequestBody RewardRule rule) {
+        return rewardRuleService.updateRule(id, rule);
     }
 
     @GetMapping("/card/{cardId}")
-    public ResponseEntity<List<RewardRule>> byCard(@PathVariable Long cardId) {
-        return ResponseEntity.ok(service.getRulesByCard(cardId));
+    public List<RewardRule> getRulesByCard(@PathVariable Long cardId) {
+        return rewardRuleService.getRulesByCard(cardId);
     }
 
     @GetMapping("/active")
-    public ResponseEntity<List<RewardRule>> active() {
-        return ResponseEntity.ok(service.getActiveRules());
+    public List<RewardRule> getActiveRules() {
+        return rewardRuleService.getActiveRules();
     }
 
     @GetMapping
-    public ResponseEntity<List<RewardRule>> all() {
-        return ResponseEntity.ok(service.getAllRules());
+    public List<RewardRule> getAllRules() {
+        return rewardRuleService.getAllRules();
     }
 }

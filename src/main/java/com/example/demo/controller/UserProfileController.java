@@ -2,45 +2,43 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.UserProfile;
 import com.example.demo.service.UserProfileService;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
-@Tag(name = "Users")
 public class UserProfileController {
 
-    private final UserProfileService service;
+    private final UserProfileService userProfileService;
 
-    public UserProfileController(UserProfileService service) {
-        this.service = service;
+    public UserProfileController(UserProfileService userProfileService) {
+        this.userProfileService = userProfileService;
     }
 
     @PostMapping
-    public ResponseEntity<UserProfile> create(@RequestBody UserProfile p) {
-        return ResponseEntity.ok(service.createUser(p));
+    public UserProfile createUser(@RequestBody UserProfile profile) {
+        return userProfileService.createUser(profile);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserProfile> get(@PathVariable Long id) {
-        return ResponseEntity.ok(service.getUserById(id));
+    public UserProfile getUser(@PathVariable Long id) {
+        return userProfileService.getUserById(id);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserProfile>> all() {
-        return ResponseEntity.ok(service.getAllUsers());
+    public List<UserProfile> getAllUsers() {
+        return userProfileService.getAllUsers();
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<UserProfile> status(@PathVariable Long id,
-                                              @RequestParam boolean active) {
-        return ResponseEntity.ok(service.updateUserStatus(id, active));
+    public UserProfile updateStatus(@PathVariable Long id,
+                                    @RequestParam boolean active) {
+        return userProfileService.updateUserStatus(id, active);
     }
 
     @GetMapping("/lookup/{userId}")
-    public ResponseEntity<UserProfile> lookup(@PathVariable String userId) {
-        return ResponseEntity.ok(service.findByUserId(userId));
+    public UserProfile getByUserId(@PathVariable String userId) {
+        return userProfileService.findByUserId(userId);
     }
 }
