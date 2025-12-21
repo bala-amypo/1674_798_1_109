@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/repository/CreditCardRecordRepository.java
 package com.example.demo.repository;
 
 import com.example.demo.entity.CreditCardRecord;
@@ -7,9 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface CreditCardRecordRepository extends JpaRepository<CreditCardRecord, Long> {
-
     List<CreditCardRecord> findByUserId(Long userId);
 
-    @Query("SELECT c FROM CreditCardRecord c WHERE c.userId = :userId AND c.status = 'ACTIVE'")
+    @Query("select c from CreditCardRecord c where c.userId = :userId and c.status = 'ACTIVE'")
     List<CreditCardRecord> findActiveCardsByUser(Long userId);
 }
