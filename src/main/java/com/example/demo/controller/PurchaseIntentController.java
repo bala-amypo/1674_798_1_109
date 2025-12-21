@@ -1,7 +1,9 @@
+// src/main/java/com/example/demo/controller/PurchaseIntentController.java
 package com.example.demo.controller;
 
 import com.example.demo.entity.PurchaseIntentRecord;
 import com.example.demo.service.PurchaseIntentService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,29 +12,29 @@ import java.util.List;
 @RequestMapping("/api/intents")
 public class PurchaseIntentController {
 
-    private final PurchaseIntentService purchaseIntentService;
+    private final PurchaseIntentService intentService;
 
-    public PurchaseIntentController(PurchaseIntentService purchaseIntentService) {
-        this.purchaseIntentService = purchaseIntentService;
+    public PurchaseIntentController(PurchaseIntentService intentService) {
+        this.intentService = intentService;
     }
 
     @PostMapping
-    public PurchaseIntentRecord createIntent(@RequestBody PurchaseIntentRecord intent) {
-        return purchaseIntentService.createIntent(intent);
+    public ResponseEntity<PurchaseIntentRecord> create(@RequestBody PurchaseIntentRecord intent) {
+        return ResponseEntity.ok(intentService.createIntent(intent));
     }
 
     @GetMapping("/user/{userId}")
-    public List<PurchaseIntentRecord> getByUser(@PathVariable Long userId) {
-        return purchaseIntentService.getIntentsByUser(userId);
+    public ResponseEntity<List<PurchaseIntentRecord>> getByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(intentService.getIntentsByUser(userId));
     }
 
     @GetMapping("/{id}")
-    public PurchaseIntentRecord getById(@PathVariable Long id) {
-        return purchaseIntentService.getIntentById(id);
+    public ResponseEntity<PurchaseIntentRecord> get(@PathVariable Long id) {
+        return ResponseEntity.ok(intentService.getIntentById(id));
     }
 
     @GetMapping
-    public List<PurchaseIntentRecord> getAll() {
-        return purchaseIntentService.getAllIntents();
+    public ResponseEntity<List<PurchaseIntentRecord>> getAll() {
+        return ResponseEntity.ok(intentService.getAllIntents());
     }
 }

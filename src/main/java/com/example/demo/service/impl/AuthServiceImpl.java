@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/service/impl/AuthServiceImpl.java
 package com.example.demo.service.impl;
 
 import com.example.demo.dto.JwtResponse;
@@ -14,25 +15,27 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 
 public class AuthServiceImpl implements AuthService {
 
-    private final UserProfileService userProfileService;
-    private final UserProfileRepository userProfileRepository;
-    private final AuthenticationManager authenticationManager;
+    private final UserProfileService userService;
+    private final UserProfileRepository userRepo;
+    private final AuthenticationManager authManager;
     private final JwtUtil jwtUtil;
 
-    // ⚠️ Constructor order MUST match tests
-    public AuthServiceImpl(UserProfileService userProfileService,
-                           UserProfileRepository userProfileRepository,
-                           AuthenticationManager authenticationManager,
+    public AuthServiceImpl(UserProfileService userService,
+                           UserProfileRepository userRepo,
+                           AuthenticationManager authManager,
                            JwtUtil jwtUtil) {
-        this.userProfileService = userProfileService;
-        this.userProfileRepository = userProfileRepository;
-        this.authenticationManager = authenticationManager;
+        this.userService = userService;
+        this.userRepo = userRepo;
+        this.authManager = authManager;
         this.jwtUtil = jwtUtil;
     }
 
     @Override
     public JwtResponse register(RegisterRequest request) {
-
+        if (userRepo.existsByUserId(request.getUserId())
+                || userRepo.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("Duplicate user");
+        }
         UserProfile user = new UserProfile();
         user.setUserId(request.getUserId());
         user.setFullName(request.getFullName());
@@ -40,51 +43,25 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(request.getPassword());
         user.setRole(request.getRole());
         user.setActive(true);
+        user = userService.createUser(user);
 
-        UserProfile saved = userProfileService.createUser(user);
-
-        String token = jwtUtil.generateToken(
-                saved.getId(),
-                saved.getEmail(),
-                saved.getRole()
-        );
-
-        return new JwtResponse(
-                token,
-                saved.getId(),
-                saved.getEmail(),
-                saved.getRole()
-        );
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+        return new JwtResponse(token, user.getId(), user.getEmail(), user.getRole());
     }
 
     @Override
     public JwtResponse login(LoginRequest request) {
+        authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-
-        UserProfile user = userProfileRepository.findByEmail(request.getEmail())
+        UserProfile user = userRepo.findByEmail(request.getEmail())
                 .orElseThrow(() -> new BadRequestException("Invalid credentials"));
 
-        if (!Boolean.TRUE.equals(user.getActive())) {
-            throw new BadRequestException("User is inactive");
+        if (Boolean.FALSE.equals(user.getActive())) {
+            throw new BadRequestException("Inactive user");
         }
 
-        String token = jwtUtil.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
-
-        return new JwtResponse(
-                token,
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+        return new JwtResponse(token, user.getId(), user.getEmail(), user.getRole());
     }
 }

@@ -1,7 +1,9 @@
+// src/main/java/com/example/demo/controller/UserProfileController.java
 package com.example.demo.controller;
 
 import com.example.demo.entity.UserProfile;
 import com.example.demo.service.UserProfileService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,35 +12,35 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserProfileController {
 
-    private final UserProfileService userProfileService;
+    private final UserProfileService userService;
 
-    public UserProfileController(UserProfileService userProfileService) {
-        this.userProfileService = userProfileService;
+    public UserProfileController(UserProfileService userService) {
+        this.userService = userService;
     }
 
     @PostMapping
-    public UserProfile createUser(@RequestBody UserProfile profile) {
-        return userProfileService.createUser(profile);
+    public ResponseEntity<UserProfile> create(@RequestBody UserProfile profile) {
+        return ResponseEntity.ok(userService.createUser(profile));
     }
 
     @GetMapping("/{id}")
-    public UserProfile getUser(@PathVariable Long id) {
-        return userProfileService.getUserById(id);
+    public ResponseEntity<UserProfile> get(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @GetMapping
-    public List<UserProfile> getAllUsers() {
-        return userProfileService.getAllUsers();
+    public ResponseEntity<List<UserProfile>> getAll() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @PutMapping("/{id}/status")
-    public UserProfile updateStatus(@PathVariable Long id,
-                                    @RequestParam boolean active) {
-        return userProfileService.updateUserStatus(id, active);
+    public ResponseEntity<UserProfile> updateStatus(@PathVariable Long id,
+                                                    @RequestParam boolean active) {
+        return ResponseEntity.ok(userService.updateUserStatus(id, active));
     }
 
     @GetMapping("/lookup/{userId}")
-    public UserProfile getByUserId(@PathVariable String userId) {
-        return userProfileService.findByUserId(userId);
+    public ResponseEntity<UserProfile> getByUserId(@PathVariable String userId) {
+        return ResponseEntity.ok(userService.findByUserId(userId));
     }
 }

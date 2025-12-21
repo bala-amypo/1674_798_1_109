@@ -1,9 +1,11 @@
+// src/main/java/com/example/demo/controller/AuthController.java
 package com.example.demo.controller;
 
 import com.example.demo.dto.JwtResponse;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
 import com.example.demo.service.AuthService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,12 +19,12 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public JwtResponse register(@RequestBody RegisterRequest request) {
-        return authService.register(request);
+    public ResponseEntity<JwtResponse> register(@RequestBody RegisterRequest request) {
+        return ResponseEntity.ok(authService.register(request));
     }
 
     @PostMapping("/login")
-    public JwtResponse login(@RequestBody LoginRequest request) {
-        return authService.login(request);
+    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }

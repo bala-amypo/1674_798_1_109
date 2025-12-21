@@ -1,7 +1,9 @@
+// src/main/java/com/example/demo/controller/CreditCardController.java
 package com.example.demo.controller;
 
 import com.example.demo.entity.CreditCardRecord;
 import com.example.demo.service.CreditCardService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,35 +12,35 @@ import java.util.List;
 @RequestMapping("/api/cards")
 public class CreditCardController {
 
-    private final CreditCardService creditCardService;
+    private final CreditCardService cardService;
 
-    public CreditCardController(CreditCardService creditCardService) {
-        this.creditCardService = creditCardService;
+    public CreditCardController(CreditCardService cardService) {
+        this.cardService = cardService;
     }
 
     @PostMapping
-    public CreditCardRecord addCard(@RequestBody CreditCardRecord card) {
-        return creditCardService.addCard(card);
+    public ResponseEntity<CreditCardRecord> add(@RequestBody CreditCardRecord card) {
+        return ResponseEntity.ok(cardService.addCard(card));
     }
 
     @PutMapping("/{id}")
-    public CreditCardRecord updateCard(@PathVariable Long id,
-                                       @RequestBody CreditCardRecord card) {
-        return creditCardService.updateCard(id, card);
+    public ResponseEntity<CreditCardRecord> update(@PathVariable Long id,
+                                                   @RequestBody CreditCardRecord updated) {
+        return ResponseEntity.ok(cardService.updateCard(id, updated));
     }
 
     @GetMapping("/user/{userId}")
-    public List<CreditCardRecord> getCardsByUser(@PathVariable Long userId) {
-        return creditCardService.getCardsByUser(userId);
+    public ResponseEntity<List<CreditCardRecord>> getByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(cardService.getCardsByUser(userId));
     }
 
     @GetMapping("/{id}")
-    public CreditCardRecord getCard(@PathVariable Long id) {
-        return creditCardService.getCardById(id);
+    public ResponseEntity<CreditCardRecord> get(@PathVariable Long id) {
+        return ResponseEntity.ok(cardService.getCardById(id));
     }
 
     @GetMapping
-    public List<CreditCardRecord> getAllCards() {
-        return creditCardService.getAllCards();
+    public ResponseEntity<List<CreditCardRecord>> getAll() {
+        return ResponseEntity.ok(cardService.getAllCards());
     }
 }
