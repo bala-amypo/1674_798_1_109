@@ -1,15 +1,17 @@
 // src/main/java/com/example/demo/security/JwtUtil.java
 package com.example.demo.security;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 public class JwtUtil {
 
-    private final Key key;
+    private final SecretKey key;
     private final Long expirationMs;
 
     public JwtUtil(byte[] secret, Long expirationMs) {
@@ -25,16 +27,17 @@ public class JwtUtil {
                 .claim("role", role)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expirationMs))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(key)
                 .compact();
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+        // FIXED: Use parser() instead of parserBuilder() for jjwt 0.12.3
+        return Jwts.parser()
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     public String extractEmail(String token) {
@@ -53,7 +56,7 @@ public class JwtUtil {
         try {
             extractAllClaims(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
+        } catch (Exception e) {
             return false;
         }
     }
