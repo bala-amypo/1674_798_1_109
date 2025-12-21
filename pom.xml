@@ -79,7 +79,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- TestNG -->
+        <!-- TestNG (REQUIRED BY TESTS) -->
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
@@ -127,10 +127,11 @@
                 </configuration>
             </plugin>
             
-            <!-- Spring Boot -->
+            <!-- Spring Boot Maven Plugin (FIXED VERSION) -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>3.2.0</version>
             </plugin>
         </plugins>
     </build>
