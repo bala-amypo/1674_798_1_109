@@ -1,21 +1,21 @@
-// src/main/java/com/example/demo/security/JwtUtil.java
 package com.example.demo.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 
-import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
 import java.util.Date;
 
 public class JwtUtil {
 
-    private final SecretKey key;
+    private final Key key;
     private final Long expirationMs;
 
     public JwtUtil(byte[] secret, Long expirationMs) {
-        this.key = Keys.hmacShaKeyFor(secret);
+        this.key = new SecretKeySpec(secret, SignatureAlgorithm.HS256.getJcaName());
         this.expirationMs = expirationMs;
     }
 
@@ -27,17 +27,15 @@ public class JwtUtil {
                 .claim("role", role)
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expirationMs))
-                .signWith(key)
+                .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
 
     private Claims extractAllClaims(String token) {
-        // FIXED: Use parser() instead of parserBuilder() for jjwt 0.12.3
         return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+                .setSigningKey(key)
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public String extractEmail(String token) {
@@ -56,7 +54,7 @@ public class JwtUtil {
         try {
             extractAllClaims(token);
             return true;
-        } catch (Exception e) {
+        } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
     }
