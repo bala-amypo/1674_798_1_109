@@ -26,15 +26,8 @@ public class SecurityConfig {
                 sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(
-                        "/auth/**",
-                        "/simple-status",
-                        "/v3/api-docs/**",
-                        "/swagger-ui/**",
-                        "/swagger-ui.html"
-                ).permitAll()
-                .requestMatchers("/api/**").authenticated()
-                .anyRequest().denyAll()
+                // TEMP: allow everything for now
+                .anyRequest().permitAll()
             );
 
         return http.build();
@@ -48,7 +41,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // BCrypt is the standard encoder used with Spring Security
         return new BCryptPasswordEncoder();
     }
 }
