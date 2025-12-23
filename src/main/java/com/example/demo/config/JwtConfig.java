@@ -10,7 +10,7 @@ public class JwtConfig {
     @Bean
     public JwtUtil jwtUtil() {
         String secret = "my-secret-key-my-secret-key-my-secret-key";
-        Long expirationMs = 86400000L; // 1 day
+        Long expirationMs = 86400000L;
         return new JwtUtil(secret.getBytes(), expirationMs);
     }
 }
