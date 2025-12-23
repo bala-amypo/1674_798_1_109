@@ -1,4 +1,3 @@
-// src/main/java/com/example/demo/service/impl/RewardRuleServiceImpl.java
 package com.example.demo.service.impl;
 
 import com.example.demo.entity.RewardRule;
@@ -6,9 +5,11 @@ import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.repository.RewardRuleRepository;
 import com.example.demo.service.RewardRuleService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class RewardRuleServiceImpl implements RewardRuleService {
 
     private final RewardRuleRepository rewardRepo;
