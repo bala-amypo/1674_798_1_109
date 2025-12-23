@@ -17,14 +17,18 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers(
+                    "/auth/**",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui.html"
+                ).permitAll()
                 .anyRequest().authenticated()
             );
 
         return http.build();
     }
 
-    // 🔴 THIS BEAN IS WHAT YOUR APP IS MISSING
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration
