@@ -2,39 +2,48 @@ package com.example.demo.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.demo.repository.UserProfileRepository;
+import com.example.demo.entity.UserProfile;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 @Configuration
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-        http
-            // Disable CSRF for simple REST/JWT setup
-            .csrf(csrf -> csrf.disable())
+    @Bean
+    public UserDetailsService userDetailsService(UserProfileRepository userProfileRepository) {
+        return email -> {
+            UserProfile user = userProfileRepository.findByEmail(email)
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(user.getEmail())
+                    .password(user.getPassword())
+                    .roles(user.getRole())
+                    .build();
+        };
+    }
 
-            // Set authorization rules
-            .authorizeHttpRequests(auth -> auth
-                // Allow health/servlet endpoints without auth
-                .requestMatchers("/status", "/status/**", "/simple-status", "/simple-status/**").permitAll()
-                // Allow auth endpoints (register/login) without auth
-                .requestMatchers("/api/auth/**").permitAll()
-                // You can also open H2 console or others if needed:
-                // .requestMatchers("/h2-console/**").permitAll()
-                // Everything else allowed (for this lab); change to authenticated() when you add real JWT filter
-                .anyRequest().permitAll()
-            )
+    @Bean
+    public AuthenticationProvider authenticationProvider(UserProfileRepository userProfileRepository, PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService(userProfileRepository));
+        authProvider.setPasswordEncoder(passwordEncoder);
+        return authProvider;
+    }
 
-            // Disable default login form & HTTP Basic to avoid that blue login page
-            .formLogin(form -> form.disable())
-            .httpBasic(basic -> basic.disable())
-
-            // Stateless sessions (good with JWT; harmless for now)
-            .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        return http.build();
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }
