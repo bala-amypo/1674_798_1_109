@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.example.demo.service.impl;
 
 import com.example.demo.dto.JwtResponse;
 import com.example.demo.dto.LoginRequest;
@@ -12,11 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
 
-@RestController
-@RequestMapping("/api/auth")
-public class AuthController {
+public class AuthServiceImpl {
     
     private final UserProfileService userService;
     private final UserProfileRepository userProfileRepository;
@@ -24,18 +21,17 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthController(UserProfileService userService,
-                         UserProfileRepository userProfileRepository,
-                         AuthenticationManager authenticationManager,
-                         JwtUtil jwtUtil) {
+    public AuthServiceImpl(UserProfileService userService,
+                          UserProfileRepository userProfileRepository,
+                          AuthenticationManager authenticationManager,
+                          JwtUtil jwtUtil) {
         this.userService = userService;
         this.userProfileRepository = userProfileRepository;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<JwtResponse> register(@RequestBody RegisterRequest request) {
+    public ResponseEntity<JwtResponse> register(RegisterRequest request) {
         UserProfile user = new UserProfile();
         user.setUserId("U" + System.currentTimeMillis());
         user.setEmail(request.getEmail());
@@ -50,8 +46,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<JwtResponse> login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
