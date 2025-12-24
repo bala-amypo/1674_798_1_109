@@ -1,90 +1,66 @@
-package com.example.demo.service.impl;
+package com.example.demo.controller;
 
 import com.example.demo.dto.JwtResponse;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.UserProfile;
-import com.example.demo.exception.BadRequestException;
 import com.example.demo.repository.UserProfileRepository;
 import com.example.demo.security.JwtUtil;
-import com.example.demo.service.AuthService;
 import com.example.demo.service.UserProfileService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
-@Service
-public class AuthServiceImpl implements AuthService {
-
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+    
     private final UserProfileService userService;
-    private final UserProfileRepository userRepo;
-    private final AuthenticationManager authManager;
+    private final UserProfileRepository userProfileRepository;
+    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
 
-    public AuthServiceImpl(UserProfileService userService,
-                           UserProfileRepository userRepo,
-                           AuthenticationManager authManager,
-                           JwtUtil jwtUtil,
-                           PasswordEncoder passwordEncoder) {
+    @Autowired
+    public AuthController(UserProfileService userService,
+                         UserProfileRepository userProfileRepository,
+                         AuthenticationManager authenticationManager,
+                         JwtUtil jwtUtil) {
         this.userService = userService;
-        this.userRepo = userRepo;
-        this.authManager = authManager;
+        this.userProfileRepository = userProfileRepository;
+        this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.passwordEncoder = passwordEncoder;
     }
 
-    @Override
-    public JwtResponse register(RegisterRequest request) {
-
-        if (userRepo.existsByUserId(request.getUserId())
-                || userRepo.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Duplicate user");
-        }
-
+    @PostMapping("/register")
+    public ResponseEntity<JwtResponse> register(@RequestBody RegisterRequest request) {
         UserProfile user = new UserProfile();
-        user.setUserId(request.getUserId());
-        user.setFullName(request.getFullName());
+        user.setUserId("U" + System.currentTimeMillis());
         user.setEmail(request.getEmail());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
-        user.setActive(true);
-
-        user = userService.createUser(user);
-
-        String token = jwtUtil.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
-
-        return new JwtResponse(token, user.getId(), user.getEmail(), user.getRole());
+        user.setPassword(request.getPassword());
+        user.setFullName(request.getFullName());
+        user.setRole(request.getRole() != null ? request.getRole() : "USER");
+        
+        UserProfile savedUser = userService.createUser(user);
+        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getEmail(), savedUser.getRole());
+        
+        JwtResponse response = new JwtResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getRole(), token);
+        return ResponseEntity.ok(response);
     }
 
-    @Override
-    public JwtResponse login(LoginRequest request) {
-
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
+    @PostMapping("/login")
+    public ResponseEntity<JwtResponse> login(@RequestBody LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-
-        UserProfile user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BadRequestException("Invalid credentials"));
-
-        if (!user.getActive()) {
-            throw new BadRequestException("Inactive user");
-        }
-
-        String token = jwtUtil.generateToken(
-                user.getId(),
-                user.getEmail(),
-                user.getRole()
-        );
-
-        return new JwtResponse(token, user.getId(), user.getEmail(), user.getRole());
+        
+        UserProfile user = userProfileRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        String token = jwtUtil.generateToken(user.getId(), user.getEmail(), user.getRole());
+        JwtResponse response = new JwtResponse(user.getId(), user.getEmail(), user.getRole(), token);
+        return ResponseEntity.ok(response);
     }
 }
