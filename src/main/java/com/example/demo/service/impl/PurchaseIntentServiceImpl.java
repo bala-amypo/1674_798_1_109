@@ -17,7 +17,7 @@ public class PurchaseIntentServiceImpl implements PurchaseIntentService {
 
     @Override
     public PurchaseIntentRecord createIntent(PurchaseIntentRecord intent) {
-        intent.prePersist();
+        // JPA @PrePersist handles timestamps automatically
         return purchaseIntentRepository.save(intent);
     }
 

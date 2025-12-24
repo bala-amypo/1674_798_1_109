@@ -1,7 +1,7 @@
 package com.example.demo.service.impl;
 
 import com.example.demo.entity.CreditCardRecord;
-import com.example.demo.repository.CreditCardRecordRepository;
+import com.example.demo.repository.CreditCardRecordRepository;  // Correct import
 import com.example.demo.service.CreditCardService;
 import org.springframework.stereotype.Service;
 
@@ -9,15 +9,15 @@ import java.util.List;
 
 @Service
 public class CreditCardServiceImpl implements CreditCardService {
-    private final CreditCardRecordRepository creditCardRepository;
+    private final CreditCardRecordRepository creditCardRepository;  // Correct type
 
-    public CreditCardServiceImpl(CreditCardRecordRepository creditCardRepository) {
+    public CreditCardServiceImpl(CreditCardRecordRepository creditCardRepository) {  // Fixed parameter
         this.creditCardRepository = creditCardRepository;
     }
 
     @Override
     public CreditCardRecord addCard(CreditCardRecord card) {
-        card.prePersist();
+        // JPA @PrePersist handles timestamps automatically
         return creditCardRepository.save(card);
     }
 

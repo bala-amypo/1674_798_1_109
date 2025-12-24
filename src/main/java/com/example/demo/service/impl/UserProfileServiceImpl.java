@@ -28,7 +28,7 @@ public class UserProfileServiceImpl implements UserProfileService {
             throw new BadRequestException("UserId already exists");
         }
         userProfile.setPassword(passwordEncoder.encode(userProfile.getPassword()));
-        userProfile.prePersist();
+        // JPA @PrePersist handles role default and timestamps automatically
         return userProfileRepository.save(userProfile);
     }
 

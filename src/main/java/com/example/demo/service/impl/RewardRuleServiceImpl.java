@@ -17,7 +17,7 @@ public class RewardRuleServiceImpl implements RewardRuleService {
 
     @Override
     public RewardRule createRule(RewardRule rule) {
-        rule.prePersist();
+        // JPA @PrePersist handles timestamps automatically
         return rewardRuleRepository.save(rule);
     }
 

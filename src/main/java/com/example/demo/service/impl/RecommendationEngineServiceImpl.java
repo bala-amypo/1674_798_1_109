@@ -7,7 +7,6 @@ import com.example.demo.service.RecommendationEngineService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RecommendationEngineServiceImpl implements RecommendationEngineService {
@@ -76,7 +75,7 @@ public class RecommendationEngineServiceImpl implements RecommendationEngineServ
         rec.setRecommendedCardId(bestCard.getId());
         rec.setExpectedRewardValue(maxReward);
         rec.setCalculationDetailsJson("{\"cardId\":" + bestCard.getId() + ",\"multiplier\":" + (maxReward/intent.getAmount()) + "}");
-        rec.prePersist();
+        // JPA @PrePersist handles timestamps automatically
         
         return recommendationRecordRepository.save(rec);
     }
