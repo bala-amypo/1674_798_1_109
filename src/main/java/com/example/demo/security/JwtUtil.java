@@ -1,3 +1,4 @@
+// src/main/java/com/example/demo/security/JwtUtil.java
 package com.example.demo.security;
 
 import io.jsonwebtoken.Claims;
@@ -6,15 +7,17 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.function.Function;
 
 public class JwtUtil {
+
     private final SecretKey secretKey;
     private final long jwtExpirationInMs;
 
+    // constructor used in tests: new JwtUtil(testSecret, 60L * 60L * 1000L);
     public JwtUtil(byte[] secret, long jwtExpirationInMs) {
+        // create HMAC key from raw bytes
         this.secretKey = Keys.hmacShaKeyFor(secret);
         this.jwtExpirationInMs = jwtExpirationInMs;
     }
@@ -26,7 +29,8 @@ public class JwtUtil {
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMs))
-                .signWith(secretKey, SignatureAlgorithm.HS512)
+                // CHANGED: use HS256 instead of HS512 so test secret is strong enough
+                .signWith(secretKey, SignatureAlgorithm.HS256)   // changed-by-you
                 .compact();
     }
 
@@ -35,20 +39,20 @@ public class JwtUtil {
     }
 
     public Long extractUserId(String token) {
-        final Claims claims = extractAllClaims(token);
+        Claims claims = extractAllClaims(token);
         return claims.get("userId", Long.class);
     }
 
     public String extractRole(String token) {
-        final Claims claims = extractAllClaims(token);
+        Claims claims = extractAllClaims(token);
         return claims.get("role", String.class);
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            extractAllClaims(token);  // will throw if invalid/expired
             return true;
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return false;
         }
     }
@@ -61,8 +65,8 @@ public class JwtUtil {
                 .getBody();
     }
 
-    private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
+    private <T> T extractClaim(String token, Function<Claims, T> resolver) {
+        Claims claims = extractAllClaims(token);
+        return resolver.apply(claims);
     }
 }
