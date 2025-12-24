@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.PurchaseIntentRecord;
 import com.example.demo.service.PurchaseIntentService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +10,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/intents")
 public class PurchaseIntentController {
-    
     private final PurchaseIntentService intentService;
 
-    @Autowired
     public PurchaseIntentController(PurchaseIntentService intentService) {
         this.intentService = intentService;
     }

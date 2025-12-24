@@ -4,21 +4,19 @@ import com.example.demo.entity.*;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.repository.*;
 import com.example.demo.service.RecommendationEngineService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class RecommendationEngineServiceImpl implements RecommendationEngineService {
-    
     private final PurchaseIntentRecordRepository purchaseIntentRepository;
     private final UserProfileRepository userProfileRepository;
     private final CreditCardRecordRepository creditCardRepository;
     private final RewardRuleRepository rewardRuleRepository;
     private final RecommendationRecordRepository recommendationRecordRepository;
 
-    @Autowired
     public RecommendationEngineServiceImpl(
             PurchaseIntentRecordRepository purchaseIntentRepository,
             UserProfileRepository userProfileRepository,
@@ -34,40 +32,52 @@ public class RecommendationEngineServiceImpl implements RecommendationEngineServ
 
     @Override
     public RecommendationRecord generateRecommendation(Long purchaseIntentId) {
-        // Fetch intent and user
+        // Fetch intent
         PurchaseIntentRecord intent = purchaseIntentRepository.findById(purchaseIntentId)
-                .orElseThrow(() -> new BadRequestException("Purchase intent not found"));
+                .orElseThrow(() -> new BadRequestException("Intent not found"));
         
+        // Fetch user
         UserProfile user = userProfileRepository.findById(intent.getUserId())
                 .orElseThrow(() -> new BadRequestException("User not found"));
-
+        
+        if (!user.getActive()) {
+            throw new BadRequestException("User is not active");
+        }
+        
         // Get user's active cards
         List<CreditCardRecord> cards = creditCardRepository.findActiveCardsByUser(intent.getUserId());
         if (cards.isEmpty()) {
             throw new BadRequestException("No active cards found for user");
         }
-
-        // Pick first card (simplified logic for tests)
-        CreditCardRecord bestCard = cards.get(0);
         
-        // Find best rule for this card and category
-        List<RewardRule> rules = rewardRuleRepository.findActiveRulesForCardCategory(
-                bestCard.getId(), intent.getCategory());
+        // Find best card for this category
+        CreditCardRecord bestCard = null;
+        double maxReward = 0.0;
         
-        double rewardValue = 0.0;
-        if (!rules.isEmpty()) {
-            RewardRule bestRule = rules.get(0);
-            rewardValue = intent.getAmount() * bestRule.getMultiplier();
+        for (CreditCardRecord card : cards) {
+            List<RewardRule> rules = rewardRuleRepository.findActiveRulesForCardCategory(card.getId(), intent.getCategory());
+            for (RewardRule rule : rules) {
+                double reward = intent.getAmount() * rule.getMultiplier();
+                if (reward > maxReward) {
+                    maxReward = reward;
+                    bestCard = card;
+                }
+            }
         }
-
+        
+        if (bestCard == null) {
+            throw new BadRequestException("No suitable card found for category: " + intent.getCategory());
+        }
+        
         // Create recommendation
         RecommendationRecord rec = new RecommendationRecord();
         rec.setUserId(intent.getUserId());
         rec.setPurchaseIntentId(purchaseIntentId);
         rec.setRecommendedCardId(bestCard.getId());
-        rec.setExpectedRewardValue(rewardValue);
-        rec.setCalculationDetailsJson("{\"cardId\":" + bestCard.getId() + ",\"multiplier\":5.0}");
-
+        rec.setExpectedRewardValue(maxReward);
+        rec.setCalculationDetailsJson("{\"cardId\":" + bestCard.getId() + ",\"multiplier\":" + (maxReward/intent.getAmount()) + "}");
+        rec.prePersist();
+        
         return recommendationRecordRepository.save(rec);
     }
 

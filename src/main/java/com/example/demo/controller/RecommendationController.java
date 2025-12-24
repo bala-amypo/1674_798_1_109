@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.entity.RecommendationRecord;
 import com.example.demo.service.RecommendationEngineService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +10,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/recommendations")
 public class RecommendationController {
-    
     private final RecommendationEngineService recommendationService;
 
-    @Autowired
     public RecommendationController(RecommendationEngineService recommendationService) {
         this.recommendationService = recommendationService;
     }
