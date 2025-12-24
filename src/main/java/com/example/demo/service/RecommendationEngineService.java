@@ -1,12 +1,12 @@
-// src/main/java/com/example/demo/service/RecommendationEngineService.java
 package com.example.demo.service;
 
 import com.example.demo.entity.RecommendationRecord;
+import com.example.demo.exception.BadRequestException;
+
 import java.util.List;
 
 public interface RecommendationEngineService {
-    RecommendationRecord generateRecommendation(Long intentId);
-    RecommendationRecord getRecommendationById(Long id);
+    RecommendationRecord generateRecommendation(Long purchaseIntentId) throws BadRequestException;
     List<RecommendationRecord> getRecommendationsByUser(Long userId);
     List<RecommendationRecord> getAllRecommendations();
 }
