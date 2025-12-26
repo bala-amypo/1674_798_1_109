@@ -20,7 +20,7 @@ public class SwaggerConfig {
                 .version("1.0")
                 .description("API for managing local events, subscriptions, and broadcasts"))
             .servers(List.of(
-                new Server().url("https://9256.pro604cr.amypo.ai/")
+                new Server().url("https://9199.pro604cr.amypo.ai/")
             ))
             .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
             .components(new io.swagger.v3.oas.models.Components()
