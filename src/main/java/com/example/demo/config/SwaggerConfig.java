@@ -18,7 +18,7 @@ public class SwaggerConfig {
             .info(new Info()
                 .title("Credit Card Score Maximizer")
                 .version("1.0")
-                .description("API for managing local events, subscriptions, and broadcasts"))
+                .description("API for managing credit cards,user profiles"))
             .servers(List.of(
                 new Server().url("https://9199.pro604cr.amypo.ai/")
             ))
